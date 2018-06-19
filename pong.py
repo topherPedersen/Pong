@@ -1,5 +1,9 @@
-# pong.py Version 0.2.0.0004
+# pong.py Version 0.2.1.0001
 # Copyright (c) 2018 Christopher D. Pedersen. All rights reserved.
+
+# TODO: Make Computer Opponent Beat-able
+# TODO: Make Serves Less Predictable (ball currently served in same direction if player misses serve)
+# TODO: Tweak Randomly Generated Ball Trajectories (random rise/run currently generated when ball hits the end of paddles)
 
 import turtle
 import random
@@ -117,6 +121,18 @@ spaceBarPen.pencolor("white")
 spaceBarPen.pendown()
 spaceBarPen.write("Press Spacebar to Begin New Game", align="center", font=("Arial", 24, "normal"))
 
+# Create Pen to Write 'Use Up & Down Arrow Keys to Move Paddle'
+# This 'pen' will be used to draw player 1's scoreboard and update the score
+# as the player scores throughout the game
+instructionsPen = turtle.Turtle()
+instructionsPen.speed(0)
+instructionsPen.penup() # move position without drawing on the canvas/window
+instructionsPen.setposition(0, -275)
+instructionsPen.ht() # hide turtle
+instructionsPen.pencolor("white")
+instructionsPen.pendown()
+instructionsPen.write("Use Up & Down Arrow Keys to Move Paddle", align="center", font=("Arial", 18, "normal"))
+
 # This method will cause the game to start when the user hits the spacebar.
 # The main gameloop is waiting for the variable runGame to equal true before it
 # will start executing the main gameplay logic. So this method works by simply
@@ -136,6 +152,7 @@ def startGame():
         speed = 10.0
         runGame = True
         spaceBarPen.undo() # remove 'Press Spacebar to Begin'
+        instructionsPen.undo() # remove 'Use Up & Down Arrows to Move Paddle'
         player1ScoreStr = str(player1points)
         player2ScoreStr = str(player2points)
         player1ScoreBoardPen.write(player1ScoreStr, font=("Arial", 48, "normal"))
@@ -149,6 +166,7 @@ def startGame():
         speed = 10.0
         runGame = True
         spaceBarPen.undo() # remove 'Press Spacebar to Begin'
+        instructionsPen.undo() # remove 'Use Up & Down Arrow Keys to Move Paddle'
         player1ScoreBoardPen.undo() # Erase old score
         player2ScoreBoardPen.undo() # Erase old score
         player1ScoreStr = str(player1points)
@@ -167,6 +185,7 @@ def endGame():
     speed = 0.0
     runGame = False
     spaceBarPen.write("Press Spacebar to Begin New Game", align="center", font=("Arial", 24, "normal"))
+    instructionsPen.write("Use Up & Down Arrow Keys to Move Paddle", align="center", font=("Arial", 18, "normal"))
 
 # create keyboard bindings that listen for up and down button presses
 turtle.listen() # instruct turtle module to listen for keyboard events (btn presses)
