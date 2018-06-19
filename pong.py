@@ -1,9 +1,10 @@
-# pong.py Version 0.1.0.0031
+# pong.py Version 0.2.0.0004
 # Copyright (c) 2018 Christopher D. Pedersen. All rights reserved.
 
 import turtle
 import random
 import math
+import time
 
 player1points = 0
 player2points = 0
@@ -160,9 +161,11 @@ def endGame():
     global speed
     global player1points
     global player2points
+    # reset score (will not appear on screen until new game begins)
+    player1points = 0
+    player2points = 0
     speed = 0.0
     runGame = False
-    speed = 0.0
     spaceBarPen.write("Press Spacebar to Begin New Game", align="center", font=("Arial", 24, "normal"))
 
 # create keyboard bindings that listen for up and down button presses
@@ -421,25 +424,6 @@ while True:
             ball.setposition(x, y)
         # CONDITION: BALL HAS HIT LEFT BOUNDARY
         elif x <= -335:
-            # Ball has hit the left boundary, so change the direction of travel by
-            # reversing the run of the slope. For example a run of -5 will become 5
-            run = run * -1
-            # Update X & Y Axis Coordinates & Move Ball
-            # Pythagorean Theorem: a**2 + b**2 == c**2
-            a_squared = rise * rise
-            b_squared = run * run
-            c_squared = a_squared + b_squared
-            c = math.sqrt(c_squared)
-
-            # We use a multiplier to make sure the ball travels a constant speed
-            # If a multiplier isn't used the ball will travel erratically
-            multiplier = speed / c
-
-            # Update X & Y Axis Coordinates & Move Ball
-            x = x + (run * (multiplier * 5.0))
-            y = y + (rise * (multiplier * 5.0))
-            ball.setposition(x, y)
-
             # Computer Opponent Has Scored a Point
             player2points = player2points + 1
             player2ScoreBoardPen.undo() # erase previous score
@@ -448,31 +432,24 @@ while True:
             print("Player 1: " + str(player1points))
             print("Player 2: " + str(player2points))
             if player2points == 21:
-                player1points = 0
-                player2points = 0
+                # BUGFIX: hideturtle, setposition, and showturtle methods added to prevent
+                # the score from incrementing after a game had already been won. Before
+                # this bug fix was added, the winning score of 21 would suddenly jump to 22
+                ball.ht() # hide turtle while moving ball back to center screen
+                ball.setposition(0, 0)
+                ball.showturtle() # make ball visible again
                 endGame()
+            else:
+                ball.ht() # hide turtle while moving ball back to center screen
+                ball.setposition(0, 0)
+                ball.showturtle() # make ball visible again
+                leftPaddle.setposition(-300, 0)
+                rightPaddle.setposition(300, 0)
+                run = -100 # Serve the ball in the direction of player 2
+                time.sleep(1) # pause for 2 seconds
         # CONDITION: BALL HAS HIT RIGHT BOUNDARY
         elif x >= 335:
-            # Ball has hit the right boundary, so change the direction of travel by
-            # reversing the run of the slope. For example a run of -5 will become 5
-            run = run * -1
-            # Update X & Y Axis Coordinates & Move Ball
-            # Pythagorean Theorem: a**2 + b**2 == c**2
-            a_squared = rise * rise
-            b_squared = run * run
-            c_squared = a_squared + b_squared
-            c = math.sqrt(c_squared)
-
-            # We use a multiplier to make sure the ball travels a constant speed
-            # If a multiplier isn't used the ball will travel erratically
-            multiplier = speed / c
-
-            # Update X & Y Axis Coordinates & Move Ball
-            x = x + (run * (multiplier * 5.0))
-            y = y + (rise * (multiplier * 5.0))
-            ball.setposition(x, y)
-
-            # Computer Opponent Has Scored a Point
+            # Player 1 (Human User) Has Scored a Point
             player1points = player1points + 1
             player1ScoreBoardPen.undo() # erase previous score
             player1ScoreBoardPen.write(str(player1points), font=("Arial", 48, "normal"))
@@ -480,9 +457,21 @@ while True:
             print("Player 1: " + str(player1points))
             print("Player 2: " + str(player2points))
             if player1points == 21:
-                player1points = 0
-                player2points = 0
+                # BUGFIX: hideturtle, setposition, and showturtle methods added to prevent
+                # the score from incrementing after a game had already been won. Before
+                # this bug fix was added, the winning score of 21 would suddenly jump to 22
+                ball.ht() # hide turtle while moving ball back to center screen
+                ball.setposition(0, 0)
+                ball.showturtle() # make ball visible again
                 endGame()
+            else:
+                ball.ht() # hide turtle while moving ball back to center screen
+                ball.setposition(0, 0)
+                ball.showturtle() # make ball visible again
+                leftPaddle.setposition(-300, 0)
+                rightPaddle.setposition(300, 0)
+                run = 100 # Serve the ball in the direction of player 2
+                time.sleep(1) # pause for 2 seconds
         # CONDITION: BALL HAS HIT TOP BOUNDARY
         elif y >= 335:
             # Ball has hit the top boundary, so change the direction of travel by
