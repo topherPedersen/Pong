@@ -1,9 +1,12 @@
-# pong.py Version 0.2.1.0001
+# pong.py Version 0.3.0.0006
 # Copyright (c) 2018 Christopher D. Pedersen. All rights reserved.
 
-# TODO: Make Computer Opponent Beat-able
-# TODO: Make Serves Less Predictable (ball currently served in same direction if player misses serve)
 # TODO: Tweak Randomly Generated Ball Trajectories (random rise/run currently generated when ball hits the end of paddles)
+
+# REFERENCE: py2app (package app for distribution on Mac)
+# py2app tutorial on YouTube: https://bit.ly/2JMN9Rr
+# py2app website: https://pypi.org/project/py2app/
+# py2app bug fix for Mac: https://stackoverflow.com/questions/33197412/py2app-operation-not-permitted
 
 import turtle
 import random
@@ -27,7 +30,7 @@ ball = turtle.Turtle()
 ball.shape("circle")
 ball.fillcolor("white")
 ball.penup() # move position without drawing on the canvas/window
-ball.setposition(0, 0)
+ball.setposition(275, 0)
 
 # create left ping pong paddle
 # REFERENCE (move turtle without drawing line): https://stackoverflow.com/questions/36550242/python-turtle-delete-line
@@ -225,9 +228,9 @@ table.hideturtle()
 # Initialize Ball Trajectory Variables
 coinToss = random.randint(1, 2)
 if coinToss == 1:
-    rise = random.randint(1, 100) * 1.0
+    rise = random.randint(15, 85) * 1.0
 elif coinToss == 2:
-    rise = random.randint(1, 100) * -1.0
+    rise = random.randint(15, 85) * -1.0
 run = -100.0
 # speed variable is declared earlier in the program, see above
 
@@ -248,7 +251,7 @@ while True:
         # DETECT LEFT PADDLE STRIKE (BALL MAKING CONTACT WITH PADDLE)
         paddle_y_coordinate = leftPaddle.ycor() # get y-axis coordinate of leftPaddle
         paddle_x_coordinate = leftPaddle.xcor() # get x-axis coordinate of leftPaddle
-        if x >= paddle_x_coordinate - 15 and x <= paddle_x_coordinate + 15 and y >= paddle_y_coordinate - 50 and y <= paddle_y_coordinate + 50:
+        if x >= paddle_x_coordinate - 20 and x <= paddle_x_coordinate + 20 and y >= paddle_y_coordinate - 50 and y <= paddle_y_coordinate + 50:
             # Ball has struck the paddle, so change the direction of travel by
             # reversing the run of the slope. For example a run of -5 will become 5
             run = run * -1.0
@@ -310,8 +313,13 @@ while True:
             # If a multiplier isn't used the ball will travel erratically
             multiplier = speed / c
 
+            # BUGFIX: this bug fix was added to prevent a ball which has hit the left paddle
+            # from ever traveling back in negative direction
+            if run < 0:
+                run = run * -1.0
+
             # Update X & Y Axis Coordinates
-            # Note Regarding Bug Fix: We increase the multiplier by 50% to give the
+            # Note Regarding Bug Fix: We increase the multiplier by 300% to give the
             # ball a little pop coming off the paddle. However, the ball will only
             # move at this 50% faster speed for the immediate move after impacting
             # the paddle and then will slow back down to the regular constant speed.
@@ -327,7 +335,7 @@ while True:
         # DETECT RIGHT PADDLE STRIKE (BALL MAKING CONTACT WITH PADDLE)
         right_paddle_y_coordinate = rightPaddle.ycor() # get y-axis coordinate of rightPaddle
         right_paddle_x_coordinate = rightPaddle.xcor() # get x-axis coordinate of rightPaddle
-        if x <= right_paddle_x_coordinate + 15 and x >= right_paddle_x_coordinate - 15 and y >= right_paddle_y_coordinate - 50 and y <= right_paddle_y_coordinate + 50:
+        if x <= right_paddle_x_coordinate + 20 and x >= right_paddle_x_coordinate - 20 and y >= right_paddle_y_coordinate - 50 and y <= right_paddle_y_coordinate + 50:
             # Ball has struck the paddle, so change the direction of travel by
             # reversing the run of the slope. For example a run of -5 will become 5
             run = run * -1.0
@@ -389,8 +397,13 @@ while True:
             # If a multiplier isn't used the ball will travel erratically
             multiplier = speed / c
 
+            # BUGFIX: this bug fix was added to prevent a ball which has hit the right paddle
+            # from ever traveling back in positive direction
+            if run > 0:
+                run = run * -1.0
+
             # Update X & Y Axis Coordinates
-            # Note Regarding Bug Fix: We increase the multiplier by 50% to give the
+            # Note Regarding Bug Fix: We increase the multiplier by 300% to give the
             # ball a little pop coming off the paddle. However, the ball will only
             # move at this 50% faster speed for the immediate move after impacting
             # the paddle and then will slow back down to the regular constant speed.
@@ -447,24 +460,28 @@ while True:
             player2points = player2points + 1
             player2ScoreBoardPen.undo() # erase previous score
             player2ScoreBoardPen.write(str(player2points), font=("Arial", 48, "normal"))
-            print("Score:")
-            print("Player 1: " + str(player1points))
-            print("Player 2: " + str(player2points))
+            # If 21 points have been scored, end game. If game isn't over, serve ball.
             if player2points == 21:
                 # BUGFIX: hideturtle, setposition, and showturtle methods added to prevent
                 # the score from incrementing after a game had already been won. Before
                 # this bug fix was added, the winning score of 21 would suddenly jump to 22
                 ball.ht() # hide turtle while moving ball back to center screen
-                ball.setposition(0, 0)
+                ball.setposition(275, 0)
                 ball.showturtle() # make ball visible again
                 endGame()
             else:
                 ball.ht() # hide turtle while moving ball back to center screen
-                ball.setposition(0, 0)
+                ball.setposition(275, 0)
                 ball.showturtle() # make ball visible again
                 leftPaddle.setposition(-300, 0)
                 rightPaddle.setposition(300, 0)
-                run = -100 # Serve the ball in the direction of player 2
+                run = -100.0 # Serve the ball in the direction of player 2
+                # Create Random Rise to Make Game Play Less Predictable
+                coinToss = random.randint(1, 2)
+                if coinToss == 1:
+                    rise = random.randint(15, 85) * 1.0
+                else:
+                    rise = random.randint(15, 85) * -1.0
                 time.sleep(1) # pause for 2 seconds
         # CONDITION: BALL HAS HIT RIGHT BOUNDARY
         elif x >= 335:
@@ -472,24 +489,28 @@ while True:
             player1points = player1points + 1
             player1ScoreBoardPen.undo() # erase previous score
             player1ScoreBoardPen.write(str(player1points), font=("Arial", 48, "normal"))
-            print("Score:")
-            print("Player 1: " + str(player1points))
-            print("Player 2: " + str(player2points))
+            # If 21 points have been scored, end game. If game isn't over, serve ball.
             if player1points == 21:
                 # BUGFIX: hideturtle, setposition, and showturtle methods added to prevent
                 # the score from incrementing after a game had already been won. Before
                 # this bug fix was added, the winning score of 21 would suddenly jump to 22
                 ball.ht() # hide turtle while moving ball back to center screen
-                ball.setposition(0, 0)
+                ball.setposition(275, 0)
                 ball.showturtle() # make ball visible again
                 endGame()
             else:
                 ball.ht() # hide turtle while moving ball back to center screen
-                ball.setposition(0, 0)
+                ball.setposition(-275, 0)
                 ball.showturtle() # make ball visible again
                 leftPaddle.setposition(-300, 0)
                 rightPaddle.setposition(300, 0)
                 run = 100 # Serve the ball in the direction of player 2
+                # Create Random Rise to Make Game Play Less Predictable
+                coinToss = random.randint(1, 2)
+                if coinToss == 1:
+                    rise = random.randint(15, 85) * 1.0
+                else:
+                    rise = random.randint(15, 85) * -1.0
                 time.sleep(1) # pause for 2 seconds
         # CONDITION: BALL HAS HIT TOP BOUNDARY
         elif y >= 335:
@@ -507,9 +528,14 @@ while True:
             # If a multiplier isn't used the ball will travel erratically
             multiplier = speed / c
 
+            # BUGFIX: this bug fix was added to prevent a ball which has hit the top
+            # boundary from ever traveling back in an upwards direction.
+            if rise > 0:
+                rise = rise * -1.0
+
             # Update X & Y Axis Coordinates & Move Ball
-            x = x + (run * (multiplier * 5.0))
-            y = y + (rise * (multiplier * 5.0))
+            x = x + (run * (multiplier * 1.0))
+            y = y + (rise * (multiplier * 1.0))
             ball.setposition(x, y)
         # CONDITION: BALL HAS HIT BOTTOM BOUNDARY
         elif y <= -335:
@@ -527,9 +553,14 @@ while True:
             # If a multiplier isn't used the ball will travel erratically
             multiplier = speed / c
 
+            # BUGFIX: this bug fix was added to prevent a ball which has hit the bottom
+            # boundary from ever traveling back in an downwards direction.
+            if rise < 0:
+                rise = rise * -1.0
+
             # Update X & Y Axis Coordinates & Move Ball
-            x = x + (run * (multiplier * 5.0))
-            y = y + (rise * (multiplier * 5.0))
+            x = x + (run * (multiplier * 1.0))
+            y = y + (rise * (multiplier * 1.0))
             ball.setposition(x, y)
 
         # COMPUTER OPPONENT'S GAME PLAY LOGIC GOES HERE (CONTROLS OPPONENT'S PADDLE)
@@ -541,9 +572,33 @@ while True:
             ballPosition = ball.ycor()
             upperPaddlePosition = rightPaddle.ycor() + 50
             lowerPaddlePosition = rightPaddle.ycor() - 50
-            if ballPosition > upperPaddlePosition:
-                # move paddle up
-                moveRightPaddleUp()
-            elif ballPosition < lowerPaddlePosition:
-                # move paddle down
-                moveRightPaddleDown()
+            # To make the computer opponent play in a more human like fashion,
+            # only move the computers paddle if the ball is heading back toward
+            # the computer opponent (if x > -225 and run > 0)
+            if x > -225 and run > 0:
+                # To make the computer opponent beat-able, we will generate a
+                # random number which will determine whether or not the computer
+                # opponent will make the correct move if the ball is within
+                # close proximity to the computer opponents paddle. This should
+                # simulate the last second mistakes made by human players.
+                # Before adding this intentional mistake making, the computer
+                # opponent was unbeatable as it never made any mistakes.
+                # The computer should make a mistake once every 5 plays on the
+                # ball.
+                randomNumberA = random.randint(1, 5)
+                randomNumberB = random.randint(1, 5)
+                if x >= 200 and randomNumberA == randomNumberB:
+                    # MAKE INCORRECT MOVE
+                    doNothing = "do not move paddle, miss ball intentionally"
+                    # add a little delay to the game so that the opponent won't
+                    # move to the correct position immediately after the intentional miss
+                    currentGameLoopIterationCount = currentGameLoopIterationCount - 10
+                    print("miss!")
+                else:
+                    # MAKE CORRECT MOVE
+                    if ballPosition > upperPaddlePosition:
+                        # move paddle up
+                        moveRightPaddleUp()
+                    elif ballPosition < lowerPaddlePosition:
+                        # move paddle down
+                        moveRightPaddleDown()
