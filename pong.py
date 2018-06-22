@@ -1,4 +1,4 @@
-# pong.py Version 0.3.0.0006
+# pong.py Version 0.4.0.0002
 # Copyright (c) 2018 Christopher D. Pedersen. All rights reserved.
 
 # TODO: Tweak Randomly Generated Ball Trajectories (random rise/run currently generated when ball hits the end of paddles)
@@ -237,6 +237,8 @@ run = -100.0
 # Initialize Computer Opponent's Gameplay Variables
 currentGameLoopIterationCount = 0
 lastMove = 0
+directionOfTravel = "left"
+missIntentionally = False
 
 alwaysTrue = True
 while True:
@@ -438,6 +440,7 @@ while True:
             x = x + (run * multiplier)
             y = y + (rise * multiplier)
             ball.setposition(x, y)
+        # CONDITION: BALL HASN'T HIT ANYTHING AND IS SIMPLY CONTINUING TO TRAVEL
         elif x > -335 and x < 335 and y < 335 and y > -335:
             # Update X & Y Axis Coordinates & Move Ball
             # Pythagorean Theorem: a**2 + b**2 == c**2
@@ -454,6 +457,31 @@ while True:
             x = x + (run * multiplier)
             y = y + (rise * multiplier)
             ball.setposition(x, y)
+
+            if x > 0 and directionOfTravel == "left":
+                # Ball has changed direction, therefore we need to determine
+                # whether the computer will try to make a play on the ball
+                # or will miss intentionally. Note, the computer opponent needs
+                # to miss occassionally or the computer opponent will be
+                # unbeatable.
+                randomNumberA = random.randint(1, 7)
+                randomNumberB = random.randint(1, 7)
+                if randomNumberA == randomNumberB:
+                    missIntentionally = True
+                    print("miss!")
+                else:
+                    missIntentionally = False
+                directionOfTravel = "right"
+            elif x > 0 and directionOfTravel == "right":
+                # do nothing
+                directionOfTravel = "right"
+            elif x < 0 and directionOfTravel == "right":
+                # Ball has changed direction and is headed back towards the
+                # the human player, update the directionOfTravel variable
+                directionOfTravel = "left"
+            elif x < 0 and directionOfTravel == "left":
+                # do nothing
+                directionOfTravel = "left"
         # CONDITION: BALL HAS HIT LEFT BOUNDARY
         elif x <= -335:
             # Computer Opponent Has Scored a Point
@@ -576,24 +604,12 @@ while True:
             # only move the computers paddle if the ball is heading back toward
             # the computer opponent (if x > -225 and run > 0)
             if x > -225 and run > 0:
-                # To make the computer opponent beat-able, we will generate a
-                # random number which will determine whether or not the computer
-                # opponent will make the correct move if the ball is within
-                # close proximity to the computer opponents paddle. This should
-                # simulate the last second mistakes made by human players.
-                # Before adding this intentional mistake making, the computer
-                # opponent was unbeatable as it never made any mistakes.
-                # The computer should make a mistake once every 5 plays on the
-                # ball.
-                randomNumberA = random.randint(1, 5)
-                randomNumberB = random.randint(1, 5)
-                if x >= 200 and randomNumberA == randomNumberB:
+                # To make the computer opponent beat-able, we will check to the
+                # missIntentionally variable to determine whether the computer
+                # opponent should try and make a play on the ball or miss
+                if x >= 200 and missIntentionally == True:
                     # MAKE INCORRECT MOVE
                     doNothing = "do not move paddle, miss ball intentionally"
-                    # add a little delay to the game so that the opponent won't
-                    # move to the correct position immediately after the intentional miss
-                    currentGameLoopIterationCount = currentGameLoopIterationCount - 10
-                    print("miss!")
                 else:
                     # MAKE CORRECT MOVE
                     if ballPosition > upperPaddlePosition:
